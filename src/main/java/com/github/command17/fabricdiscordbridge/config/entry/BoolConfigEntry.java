@@ -11,7 +11,9 @@ public class BoolConfigEntry extends ConfigEntry<Boolean> {
 
     @Override
     public void readFromProperties(Properties properties) {
-        this.setValue(Boolean.parseBoolean(properties.getProperty(this.getKey(), String.valueOf(this.getDefaultValue()))));
+        String rawValue = properties.getProperty(this.getKey(), String.valueOf(this.get()));
+        boolean value = Boolean.parseBoolean(rawValue);
+        this.setValue(value);
     }
 
     @Override

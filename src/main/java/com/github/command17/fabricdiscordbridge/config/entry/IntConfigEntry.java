@@ -29,7 +29,13 @@ public class IntConfigEntry extends ConfigEntry<Integer> {
 
     @Override
     public void readFromProperties(Properties properties) {
-        this.setValue(Integer.parseInt(properties.getProperty(this.getKey(), String.valueOf(this.get()))));
+        try {
+            String rawValue = properties.getProperty(this.getKey(), String.valueOf(this.get()));
+            int value = Integer.parseInt(rawValue);
+            this.setValue(value);
+        } catch (NumberFormatException e) {
+            this.setValue(this.getDefaultValue());
+        }
     }
 
     @Override

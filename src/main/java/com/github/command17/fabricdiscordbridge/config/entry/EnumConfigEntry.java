@@ -42,7 +42,9 @@ public class EnumConfigEntry<E extends Enum<E> & StringRepresentable> extends Co
 
     @Override
     public void readFromProperties(Properties properties) {
-        this.setValue(this.getEnumFromName(properties.getProperty(this.getKey(), this.getDefaultValue().getSerializedName())));
+        String rawValue = properties.getProperty(this.getKey(), this.getDefaultValue().getSerializedName());
+        E value = this.getEnumFromName(rawValue);
+        this.setValue(value);
     }
 
     @Override

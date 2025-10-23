@@ -29,7 +29,13 @@ public class LongConfigEntry extends ConfigEntry<Long> {
 
     @Override
     public void readFromProperties(Properties properties) {
-        this.setValue(Long.parseLong(properties.getProperty(this.getKey(), String.valueOf(this.get()))));
+        try {
+            String rawValue = properties.getProperty(this.getKey(), String.valueOf(this.get()));
+            long value = Long.parseLong(rawValue);
+            this.setValue(value);
+        } catch (NumberFormatException e) {
+            this.setValue(this.getDefaultValue());
+        }
     }
 
     @Override
