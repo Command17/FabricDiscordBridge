@@ -5,7 +5,7 @@
 [![available_fabric](https://github.com/intergrav/devins-badges/raw/refs/heads/v3/assets/compact/supported/fabric_vector.svg)](https://fabricmc.net/)
 
 [![requires_fabric_api](https://github.com/intergrav/devins-badges/raw/refs/heads/v3/assets/compact/requires/fabric-api_vector.svg)](https://modrinth.com/mod/fabric-api)
-[![requires_p-api](assets/compact_requires_p-api.svg)](https://modrinth.com/mod/placeholder-api)
+[![requires_p-api](assets/requires_p-api.svg)](https://modrinth.com/mod/placeholder-api)
 
 ---
 
