@@ -2,38 +2,28 @@ package com.github.command17.fabricdiscordbridge.command;
 
 import com.github.command17.fabricdiscordbridge.DiscordBot;
 import com.github.command17.fabricdiscordbridge.FabricDiscordBridge;
-import com.github.command17.fabricdiscordbridge.util.TextPlaceholderHelper;
+import com.github.command17.fabricdiscordbridge.config.message.MessageConfigs;
+import com.github.command17.fabricdiscordbridge.util.StringPlaceholder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import eu.pb4.placeholders.api.ParserContext;
-import eu.pb4.placeholders.api.PlaceholderContext;
-import eu.pb4.placeholders.api.node.TextNode;
-import eu.pb4.placeholders.api.parsers.TagLikeParser;
-import eu.pb4.placeholders.api.parsers.TagParser;
 import net.dv8tion.jda.api.utils.MarkdownSanitizer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+
+import java.util.Map;
 
 public class DiscordBridgeCommand {
-    private static final TextPlaceholderHelper placeholderHelper = new TextPlaceholderHelper(TagLikeParser.PLACEHOLDER);
-
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("discordbridge")
                         .then(
-                                Commands.literal("config")
-                                        .requires((source) -> source.hasPermission(4))
-                                        .then(Commands.literal("reload").executes(DiscordBridgeCommand::reloadConfig))
-                                        .then(Commands.literal("save").executes(DiscordBridgeCommand::saveConfig))
-                                        .then(Commands.literal("reset").executes(DiscordBridgeCommand::resetConfig))
-                        )
-                        .then(
                                 Commands.literal("bot")
-                                        .requires((source) -> source.hasPermission(4))
+                                        .requires((source) -> source.permissions().hasPermission(Permissions.COMMANDS_OWNER))
                                         .then(Commands.literal("start").executes(DiscordBridgeCommand::startBot))
                                         .then(Commands.literal("stop").executes(DiscordBridgeCommand::stopBot))
                         )
@@ -45,24 +35,6 @@ public class DiscordBridgeCommand {
                                         )
                         )
         );
-    }
-
-    private static int resetConfig(CommandContext<CommandSourceStack> context) {
-        FabricDiscordBridge.CONFIG_DEF.resetToDefault();
-        context.getSource().sendSuccess(() -> Component.literal("Config reset, but is not saved yet! Type '/discordbridge config save' to save.").withStyle(ChatFormatting.GREEN), false);
-        return 0;
-    }
-
-    private static int saveConfig(CommandContext<CommandSourceStack> context) {
-        FabricDiscordBridge.CONFIG_DEF.save();
-        context.getSource().sendSuccess(() -> Component.literal("Config saved!").withStyle(ChatFormatting.GREEN), false);
-        return 0;
-    }
-
-    private static int reloadConfig(CommandContext<CommandSourceStack> context) {
-        FabricDiscordBridge.CONFIG_DEF.load();
-        context.getSource().sendSuccess(() -> Component.literal("Config reloaded!").withStyle(ChatFormatting.GREEN), false);
-        return 0;
     }
 
     private static int stopBot(CommandContext<CommandSourceStack> context) {
@@ -97,35 +69,24 @@ public class DiscordBridgeCommand {
         ServerPlayer player = source.getPlayer();
         String sanitizedPlayerMsg = MarkdownSanitizer.sanitize(StringArgumentType.getString(context, "message"));
         DiscordBot bot = FabricDiscordBridge.getDiscordBot().orElse(null);
-        if (!FabricDiscordBridge.CONFIG.mcToDcEnabled.get() || bot == null || player == null) {
+        if (!FabricDiscordBridge.CONFIG.m2dEnabled.get() || bot == null || player == null) {
             source.sendFailure(Component.literal("Discord bot is not running or this feature is not enabled!"));
             return 1;
         }
 
-        placeholderHelper.setPlaceholderValue("message", Component.literal(sanitizedPlayerMsg));
-        TextPlaceholderHelper.setPlayerPlaceholderValues(placeholderHelper, player);
-        Component replacedFeedbackMsg = placeholderHelper.getParser().parseText(
-                FabricDiscordBridge.CONFIG.mcToDcCommandMsg.get(),
-                ParserContext.of()
+        StringPlaceholder messagePlaceholder = StringPlaceholder.message(sanitizedPlayerMsg);
+        Map<String, String> placeholders = StringPlaceholder.combineWithPlayerPlaceholders(player, messagePlaceholder);
+        String replacedFeedbackMsg = StringPlaceholder.replace(
+                FabricDiscordBridge.CONFIG.m2dCommandMsg.get(),
+                placeholders
         );
 
         source.getServer().getPlayerList().broadcastSystemMessage(
-                TagParser.QUICK_TEXT.parseText(TextNode.convert(replacedFeedbackMsg), ParserContext.of()),
+                Component.literal(replacedFeedbackMsg),
                 false
         );
 
-        Component msg = placeholderHelper.getParser().parseText(
-                FabricDiscordBridge.CONFIG.mcToDcMsg.get(),
-                ParserContext.of()
-        );
-
-        if (FabricDiscordBridge.CONFIG.mcToDcSendAsEmbed.get()) {
-            bot.sendEmbed(DiscordBot.createSimpleEmbed(player.getName().getString(), msg.getString()));
-        } else {
-            bot.sendComponent(msg);
-        }
-
-        placeholderHelper.clearPlaceholderValues();
+        MessageConfigs.PLAYER_CHAT.send(bot, placeholders);
         return 0;
     }
 }

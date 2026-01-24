@@ -2,30 +2,41 @@ package com.github.command17.fabricdiscordbridge;
 
 import com.github.command17.fabricdiscordbridge.command.ModCommands;
 import com.github.command17.fabricdiscordbridge.config.BotConfig;
-import com.github.command17.fabricdiscordbridge.config.ConfigDefinition;
 import com.github.command17.fabricdiscordbridge.config.ModConfig;
+import com.github.command17.fabricdiscordbridge.config.message.MessageConfigs;
 import com.github.command17.fabricdiscordbridge.event.ModDiscordEvents;
 import com.github.command17.fabricdiscordbridge.event.ModEvents;
+import de.maxhenkel.configbuilder.ConfigBuilder;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.MinecraftServer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public final class FabricDiscordBridge implements ModInitializer {
     public static final String MOD_ID = "fabricdiscordbridge";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Path CONFIG_FOLDER = FabricLoader.getInstance().getConfigDir().resolve("fabricDiscordBridge").toAbsolutePath();
+    public static final Path MESSAGE_CONFIG_FOLDER = CONFIG_FOLDER.resolve("message");
 
-    public static final BotConfig BOT_CONFIG = new BotConfig();
-    public static final ConfigDefinition BOT_CONFIG_DEF;
+    public static final BotConfig BOT_CONFIG = ConfigBuilder.builder(BotConfig::new)
+            .path(CONFIG_FOLDER.resolve("bot.properties"))
+            .keepOrder(true)
+            .saveAfterBuild(true)
+            .build();
 
-    public static final ModConfig CONFIG = new ModConfig();
-    public static final ConfigDefinition CONFIG_DEF;
+    public static final ModConfig CONFIG = ConfigBuilder.builder(ModConfig::new)
+            .path(CONFIG_FOLDER.resolve("config.properties"))
+            .keepOrder(true)
+            .saveAfterBuild(true)
+            .build();
 
     @Nullable
     private static DiscordBot discordBot;
@@ -37,9 +48,7 @@ public final class FabricDiscordBridge implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing...");
 
-        BOT_CONFIG_DEF.createOrLoad();
-        CONFIG_DEF.createOrLoad();
-
+        MessageConfigs.init();
         ModCommands.register();
         ModEvents.register();
 
@@ -81,10 +90,10 @@ public final class FabricDiscordBridge implements ModInitializer {
         return false;
     }
 
-    public static void initDiscordBot(DiscordBot bot) {
-        bot.setActivity(CONFIG.activityType.get().createActivity(CONFIG.activityName.get()));
+    private static void initDiscordBot(DiscordBot bot) {
+        bot.setActivity(BOT_CONFIG.activityType.get().createActivity(BOT_CONFIG.activity.get()));
         bot.addEventListeners(new ModDiscordEvents());
-        bot.setDefaultChannelId(CONFIG.channelId.get());
+        bot.setDefaultChannelId(BOT_CONFIG.channelId.get());
     }
 
     public static Optional<DiscordBot> getDiscordBot() {
@@ -97,10 +106,5 @@ public final class FabricDiscordBridge implements ModInitializer {
 
     public static void withDiscordBot(Consumer<DiscordBot> consumer) {
         getDiscordBot().ifPresent(consumer);
-    }
-
-    static {
-        BOT_CONFIG_DEF = BOT_CONFIG.build();
-        CONFIG_DEF = CONFIG.build();
     }
 }

@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.hooks.IEventManager;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class DiscordBot {
     private final JDA jdaInstance;
@@ -63,11 +63,11 @@ public class DiscordBot {
         this.jdaInstance.setEventManager(eventManager);
     }
 
-    public void addEventListeners(@NotNull Object... listeners) {
+    public void addEventListeners(@NonNull Object... listeners) {
         this.jdaInstance.addEventListener(listeners);
     }
 
-    public void removeEventListeners(@NotNull Object... listeners) {
+    public void removeEventListeners(@NonNull Object... listeners) {
         this.jdaInstance.removeEventListener(listeners);
     }
 
@@ -109,7 +109,7 @@ public class DiscordBot {
         if (channel != null) {
             this.sendMessage(msg, channel);
         } else {
-            FabricDiscordBridge.LOGGER.warn("Ignoring request to send message to channel '{}' because channel does not exist!", channelId);
+            FabricDiscordBridge.LOGGER.warn("Ignoring request to send message to channel '{}' because it does not exist!", channelId);
         }
     }
 

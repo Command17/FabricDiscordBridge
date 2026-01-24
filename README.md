@@ -5,103 +5,97 @@
 [![available_fabric](https://github.com/intergrav/devins-badges/raw/refs/heads/v3/assets/compact/supported/fabric_vector.svg)](https://fabricmc.net/)
 
 [![requires_fabric_api](https://github.com/intergrav/devins-badges/raw/refs/heads/v3/assets/compact/requires/fabric-api_vector.svg)](https://modrinth.com/mod/fabric-api)
-[![requires_p-api](assets/requires_p-api.svg)](https://modrinth.com/mod/placeholder-api)
 
 ---
 
 ## About 📖
 
-A minecraft Fabric mod made with **[JDA](https://github.com/discord-jda/JDA)** allowing you to bridge your Minecraft and Discord chats.
+A Minecraft Fabric mod made with **[JDA](https://github.com/discord-jda/JDA)** allowing you to bridge your Minecraft and Discord chats.
 
-I made this mod for private usage first but thought maybe someone else could use this too, so I made it public (only on Github!)
+I made this mod for private usage first but thought maybe someone else could use this too, so I made it public (only on GitHub!)
 
-**Look at other alternatives first before choosing to use this one, please!**
+**Please look at alternatives first before choosing this one!**
 
 ## Configuration ⚙️
 
 ### Bot Configuration
 
-Located at: `YOUR_MINECRAFT_FOLDER/bot.properties`
+Located at: `YOUR_MINECRAFT_FOLDER/config/fabricDiscordBridge/bot.properties`
 
-NOTE: COMMENTS DO NOT COME WITH THE CONFIG*
+Configuration for your Discord bot. This also includes a customizable activity for your bot.
+
+You'll need to paste your bot's token after `token=` for this mod to work.
+`channelId` will also need to be replaced with the ID of your Discord server's channel.
 
 ```properties
-# Enables or disables the bot automatically starting when the server starts
-autostart=true
-# The token of your Discord bot
+# Token of the Discord bot.
 token=
+# Whether to automatically start the Discord bot on server start.
+autoStart=true
+# Type of activity the Discord bot should display. Allowed values: NONE, LISTENING, PLAYING, COMPETING, WATCHING, CUSTOM
+activityType=PLAYING
+# The activity the Discord bot should display.
+activity=Minecraft
+# ID of the Discord channel the Discord bot should send its messages in.
+channelId=0
 ```
 
 ### Mod Configuration
 
-Located at: `YOUR_MINECRAFT_FOLDER/config/fabricdiscordbridge.properties`
+Located at: `YOUR_MINECRAFT_FOLDER/config/fabricDiscordBridge/config.properties`
 
-*NOTE: WHAT IS SHOWN BELOW IS FORMATTED FOR LESS CLUTTER*
+General configuration for your bot. Here you can enable and disable features or change messages
+displayed in Minecraft.
 
-*ANOTHER NOTE: COMMENTS DO NOT COME WITH THE CONFIG*
+When using [vanilla formatting](https://minecraft.wiki/w/Formatting_codes#Formatting_codes), you'll need to replace the code (e.g. `§1`, `§b`) with their Unicode variant.
+Usually, the `§` character just needs to be replaced with `\u00A7`.
 
 ```properties
-# Enables or disables the discord bot
+# Enables the Discord bot.
 enabled=true
+# Enables the server start message.
+discord.serverStartMsgEnabled=true
+# Enables the server stop message.
+discord.serverStopMsgEnabled=true
+# Enables the player join message.
+discord.playerJoinMsgEnabled=true
+# Enables the player leave message.
+discord.playerLeaveMsgEnabled=true
+# Enables the player award advancement message.
+discord.playerAwardAdvancementMsgEnabled=true
+# Enables the player died message.
+discord.playerDiedMsgEnabled=true
+# Enables the Minecraft to Discord chat bridge.
+m2d.enabled=true
+# If true, messages from chat will only be sent to Discord via a command.
+m2d.sendCommandOnly=false
+# Message to display in Minecraft when sending a message via command to Discord.
+# Supported placeholders: player, playerDisplay, playerUuid, message
+m2d.commandMsg=\u00A77[{player} -> DISCORD]: {message}
+# Enables the Discord to Minecraft chat bridge.
+d2m.enabled=true
+# Maximum Discord message length to be displayed in Minecraft.
+d2m.maxMsgLength=256
+# Message to display in Minecraft when sending a message via Discord.
+# Supported placeholders: discordUser, discordUserDisplay, message
+d2m.msg=\u00A79[DISCORD] <{discordUserDisplay}>\u00A7r {message}
+```
 
-# Used to change the activity of the bot (like "playing Minecraft")
-# A string of whatever you want
-discord.activityName=
-# The activity type (allowed values are: none, playing, listening, competing, watching, custom)
-discord.activityType=none
+### Message Config
 
-# Discord channel ID your bot will use, needs to be a number
-discord.channelId=0
+Located at: `YOUR_MINECRAFT_FOLDER/config/fabricDiscordBridge/message/MESSAGE_CONFIG_NAME.properties`
 
-# Enables or disables your bot sending an embed if a player dies
-discord.playerDiedMsg.enabled=true
-# Message your bot will show (allows for Discord Markdown formatting, allows for placeholders: message, player, playerDisplay, playerUuid)
-discord.playerDiedMsg=**%message%\!**
-# An integer value of a color used for the embed
-# This below is a shade of red
-discord.playerDiedMsg.colorInt=16733525
+These allow you to configure the Discord messages send by the bot.
 
-# Enables or disables your bot sending an embed if a player joins the server
-discord.playerJoinMsg.enabled=true
-# Message your bot will show (allows for Discord Markdown formatting, allows for placeholders: player, playerDisplay, playerUuid)
-discord.playerJoinMsg=**%player% has joined the server\!**
-# An integer value of a color used for the embed
-# This below is a shade of yellow
-discord.playerJoinMsg.colorInt=16777045
-
-# Enables or disables your bot sending an embed if a player leaves the server
-discord.playerLeaveMsg.enabled=true
-# Message your bot will show (allows for Discord Markdown formatting, allows for placeholders: player, playerDisplay, playerUuid)
-discord.playerLeaveMsg=**%player% has left the server\!**
-# An integer value of a color used for the embed
-# This below is a shade of yellow
-discord.playerLeaveMsg.colorInt=16777045
-
-# Enables or disables your bot sending an embed if a player completes an advancement
-discord.playerRewardedAdvancementMsg.enabled=true
-# Message your bot will show (allows for Discord Markdown formatting, allows for placeholders: player, playerDisplay, playerUuid, advancementTitle, advancementDescription, advancementType)
-discord.playerRewardedAdvancementMsg=**%player%** completed **%advancementTitle%**\!
-# An integer value of a color used for the embed
-# This below is a shade of green
-discord.playerRewardedAdvancementMsg.colorInt=5635925
-
-# Enables or disables the Discord to Minecraft chat bridge
-discordToMinecraftChat.enabled=true
-# Max length a Discord message can be to be sent in Minecraft
-discordToMinecraftChat.maxMsgLength=256
-# Message your bot will show in Minecraft (allows for Quick Text formatting, allows for placeholders: user, displayUser, message)
-discordToMinecraftChat.msg=<color aqua>[DISCORD]</color> <color blue><%displayUser%> %message%</color>
-
-# Enables or disables the Minecraft to Discord chat bridge
-minecraftToDiscordChat.enabled=true
-# Message that will show in Minecraft when using the '/discordbridge send' command (allows for Quick Text formatting, allows for placeholders: player, playerDisplay, playerUuid, message)
-minecraftToDiscordChat.commandMsg=<color gray>[%player% -> DISCORD]\: %message%</color>
-# Message your bot will show (allows for Discord Markdown formatting, allows for placeholders: player, playerDisplay, playerUuid, message)
-minecraftToDiscordChat.msg=**%player%\:** %message%
-# If true, your bot will send player messages as embeds in discord
-minecraftToDiscordChat.sendAsEmbed=false
-# If true, you can only use '/discordbridge send' to let the bot send messages to Discord
-minecraftToDiscordChat.sendWithCommandOnly=false
+```properties
+# The type of message to be sent. It can either be an embed or a text message. (Allowed Values: EMBED, TEXT)
+type=TEXT
+# Color of the embed in integer format. Set to any number smaller than 0 to use the default color.
+embed.color=-1
+# Title of the embed. Set to nothing to not show the title. (Can support placeholders)
+embed.title=
+# Message of the embed or text message. (Can support placeholders)
+message=
 ```
 
 ## FAQ 📝
@@ -121,6 +115,7 @@ A. Why not?
 ## Other 📚
 
 **Libraries included in the jar:**
+- [config-builder](https://github.com/henkelmax/config-builder)
 - [JDA](https://github.com/discord-jda/JDA)
 - [kotlin-stdlib](https://github.com/JetBrains/kotlin)
 - [okio-jvm](https://github.com/square/okio)
